@@ -3,5 +3,11 @@
   "version": "0.1.0",
   "engines": {
     "node": ">=16.x"
+  },
+  "dependencies": {
+    "fs": "^0.0.1-security",
+    "path": "^0.12.7",
+    "request": "^2.88.2",
+    "stats": "^1.0.0"
   }
 }
