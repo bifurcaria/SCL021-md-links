@@ -5,3 +5,12 @@ const mdLinks = new Promise( (resolutionFunc,rejectionFunc) => {
   console.log("registro inmediato");
   rejectionFunc(888);
   mdLinks.then( (val) => console.log("jsdhjs"))
+
+
+
+  if (condicion) {
+    reject(`Razón`);
+  } else {
+    //haceralgo
+    resolve('arreglo');
+  }

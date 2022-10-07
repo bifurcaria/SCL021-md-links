@@ -1,46 +1,51 @@
+// global var
 const fs = require("fs");
 const { readFileSync } = require("node:fs");
 var path = require("path");
 var request = require("request");
-const { resolve } = require("path");
-const { url } = require("inspector");
 
-//console.log(dir)
+// main function
+const mdLinks = (route, validate) => {
+  let isValid = true;
+  if (!route || route === "") {
+    isValid = false;
+  }
 
-const mdLinks = (route) => {
   //funcion que filtra md
   var dir = fs.readdirSync(route);
+
   function filterMd() {
     //filtro archivos md en el directorio
     dir = dir.filter((element) => path.extname(element) === ".md");
     dir = dir.toString();
+
     //leo archivos md
     let content = readFileSync(dir).toString("utf8");
     return content;
   }
-
+  //ruta archivo
   function fileRoute() {
-    return path.join(path.resolve(route), dir)
+    return path.join(path.resolve(route), dir);
   }
 
-  //filtra urls
+  //filtra urls con nombre
   function filterUrl(content) {
     const matchRef =
       /\[(.+)\]\((http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])\)/g;
-    //const matchLinks =
-    // /(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])/g;
     if (content.match(matchRef)) {
       let match = content.match(matchRef);
       return match;
     }
   }
 
+  //filtra url
   function extractUrl(ref) {
     const matchLinks =
       /(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])/g;
     return ref.match(matchLinks)[0];
   }
 
+  //filtra texto
   function extractText(ref) {
     const matchText = /(?:\[)(.+)(?:\])/;
     //console.log(ref.match(matchText)[0])
@@ -48,13 +53,9 @@ const mdLinks = (route) => {
     return ref.match(matchText)[1];
   }
 
-
-
-
+  //guarda md y sus urls
   let mdArchives = filterMd();
   let urlCollection = filterUrl(mdArchives);
-
-  //ESTO ES LO Q NECESITO JEJE ES EL TEXTO, MATCHREF
 
   //pone a prueba las url
   function testUrl(url, text, file) {
@@ -64,16 +65,25 @@ const mdLinks = (route) => {
         data.href = url;
         data.text = text;
         data.file = file;
+        if (!validate) {
+          console.log(data);
+          return;
+        }
         data.status = response.statusCode;
         data.ok = response.statusCode === 200 ? "ok" : "fail";
         console.log(data);
-        return data;1
+
+        return data;
       })
       .on("error", function (err) {
         data = new Object();
         data.href = url;
         data.text = text;
         data.file = file;
+        if (!validate) {
+          console.log(data);
+          return;
+        }
         data.status = "no response";
         data.ok = "fail";
         data.error = err;
@@ -81,43 +91,17 @@ const mdLinks = (route) => {
         return data;
       });
   }
-
-  //link de prueba
-  //let unLink = search()[0];
-  //unLink = "https://en.wikipedia.org/chicoelvis";
-  //console.log(unLink);
-
-  if (route) {
-    if (path.isAbsolute(route)) {
-      console.log("es absoluto");
-      return;
+  return new Promise((resolve) => {
+    if (isValid === false) {
+      console.log("invalid route");
     }
-    console.log("es relativo");
 
-    //let collection = urlOnly
-    //console.log (extractUrl(urlCollection))
-
-   
-    urlCollection.forEach((element) => {
-      //console.log(element.toString())
-      testUrl(extractUrl(element), extractText(element), fileRoute());
-    });
-
-    //let match = content.match(matchLinks);
-
-    return;
-  }
-  console.log("path invalido");
+    resolve(
+      urlCollection.forEach((element) => {
+        testUrl(extractUrl(element), extractText(element), fileRoute());
+      })
+    );
+  });
 };
 
-//----PRUEBAS-----
-
-//absoluto
-//mdLinks('C:/Users/Carla/Desktop/')
-
-//relativo
-//mdLinks('./test')
-mdLinks("./");
-
-//nada -este no funciona pq nada distingue un path relativo de cualquier string, puede ser regexp o que lo lea y sea invalido
-//mdLinks('!!!!')
+mdLinks("./", false);
