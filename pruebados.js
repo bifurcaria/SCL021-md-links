@@ -67,7 +67,7 @@ const mdLinks = (route) => {
         data.status = response.statusCode;
         data.ok = response.statusCode === 200 ? "ok" : "fail";
         console.log(data);
-        return data;1
+        return data;
       })
       .on("error", function (err) {
         data = new Object();
