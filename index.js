@@ -5,15 +5,17 @@ const fs = require("fs");
 const { readFileSync } = require("node:fs");
 var path = require("path");
 var request = require("request");
+var cmd = require('node-cmd');
 
 // main function
 const mdLinks = (route, validate) => {
+  // is route
   let isValid = true;
   if (!route || route === "") {
     isValid = false;
   }
 
-  //funcion que filtra md
+  // filter md
   var dir = fs.readdirSync(route);
 
   function filterMd() {
@@ -25,12 +27,12 @@ const mdLinks = (route, validate) => {
     let content = readFileSync(dir).toString("utf8");
     return content;
   }
-  //ruta archivo
+  // get route
   function fileRoute() {
     return path.join(path.resolve(route), dir);
   }
 
-  //filtra urls con nombre
+  // filter urls and names
   function filterUrl(content) {
     const matchRef =
       /\[(.+)\]\((http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])\)/g;
@@ -40,14 +42,14 @@ const mdLinks = (route, validate) => {
     }
   }
 
-  //filtra url
+  // filter only urls
   function extractUrl(ref) {
     const matchLinks =
       /(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])/g;
     return ref.match(matchLinks)[0];
   }
 
-  //filtra texto
+  // filter text
   function extractText(ref) {
     const matchText = /(?:\[)(.+)(?:\])/;
     //console.log(ref.match(matchText)[0])
@@ -55,11 +57,11 @@ const mdLinks = (route, validate) => {
     return ref.match(matchText)[1];
   }
 
-  //guarda md y sus urls
+  // save md files and urls
   let mdArchives = filterMd();
   let urlCollection = filterUrl(mdArchives);
 
-  //pone a prueba las url
+  // test urls by req
   function testUrl(url, text, file) {
     request(url)
       .on("response", function (response) {
@@ -93,6 +95,8 @@ const mdLinks = (route, validate) => {
         return data;
       });
   }
+
+  // return promise
   return new Promise((resolve) => {
     if (isValid === false) {
       console.log("invalid route");
@@ -105,5 +109,7 @@ const mdLinks = (route, validate) => {
     );
   });
 };
+
+mdLinks("./", "true");
 
 module.exports = {mdLinks};
