@@ -1,5 +1,5 @@
 {
-  "name": "scl021-md-links",
+  "name": "mdcheck",
   "version": "1.0.0",
   "description": "checks state of links on markdown files",
   "main": "index.js",
@@ -7,7 +7,7 @@
     "test": "test"
   },
   "bin": {
-    "mdcheck": "./index.js"
+    "mdcheck": "index.js"
   },
   "dependencies": {
     "ajv": "^6.12.6",

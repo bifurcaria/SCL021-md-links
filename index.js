@@ -2,10 +2,8 @@
 
 // global vars
 const fs = require("fs");
-const { readFileSync } = require("node:fs");
 var path = require("path");
 var request = require("request");
-var cmd = require('node-cmd');
 
 // main function
 const mdLinks = (route, validate) => {
@@ -24,7 +22,7 @@ const mdLinks = (route, validate) => {
     dir = dir.toString();
 
     //leo archivos md
-    let content = readFileSync(dir).toString("utf8");
+    let content = fs.readFileSync(dir).toString("utf8");
     return content;
   }
   // get route
